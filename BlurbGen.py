@@ -11,12 +11,14 @@ import re
 # --- Setup ---
 st.set_page_config(page_title="Blurb Generator", layout="wide")
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    st.error("Set OPENAI_API_KEY in .env")
+# Look for API key from local .env first, then from Streamlit secrets
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
+
+if not OPENAI_API_KEY:
+    st.error("No API key found. Please set it in your local .env or in Streamlit Cloud secrets.")
     st.stop()
 
-client = OpenAI(api_key=api_key)
+client = OpenAI(api_key=OPENAI_API_KEY)
 EMBED_MODEL = "text-embedding-3-small"
 GEN_MODEL = "gpt-4.1-mini"
 
