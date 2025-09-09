@@ -11,7 +11,6 @@ import re
 # --- Setup ---
 st.set_page_config(page_title="Blurb Generator", layout="wide")
 load_dotenv()
-# Look for API key from local .env first, then from Streamlit secrets
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
 
 if not OPENAI_API_KEY:
