@@ -249,7 +249,7 @@ top_k = st.slider("Top-K to retrieve", 1, 25, 8, 1)
 
 # ---------- A) SEARCH ----------
 
-if st.button("Search (retrieve similar URLs)", type="primary"):
+if st.button("Search (retrieve similar URLs)"):
     if not brand.strip():
         st.error("Enter a brand name to search.")
         st.stop()
@@ -308,7 +308,7 @@ if st.button("Search (retrieve similar URLs)", type="primary"):
     )
 
 # ---------- B) GENERATE ----------
-if st.button("Generate blurb"):
+if st.button("Generate blurb", type="primary"):
     ctx = (st.session_state.context_text or "").strip()
     if not ctx:
         st.error("No context available. Run Search first or paste context.")
