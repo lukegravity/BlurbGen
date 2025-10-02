@@ -234,7 +234,7 @@ if addr_col_embed not in df_embeddings.columns or emb_col not in df_embeddings.c
     st.stop()
 
 # --- Step 2: Upload text extraction CSV ---
-st.subheader("2) Upload text extraction CSV (URLs + Text Extract 1)")
+st.subheader("2) Upload text extraction CSV (URLs + Text Extraction 1)")
 sf_text = st.file_uploader("Upload custom_extraction_text.csv", type=["csv"], key="textcsv")
 if not sf_text:
     st.info("Upload the text extraction CSV to continue.")
@@ -243,10 +243,10 @@ if not sf_text:
 df_text = pd.read_csv(sf_text, keep_default_na=False)
 cols_text = {c.lower(): c for c in df_text.columns}
 addr_col_text = cols_text.get("address") or cols_text.get("url") or "Address"
-text_col = cols_text.get("text extract 1") or "Text Extract 1"
+text_col = cols_text.get("text extraction 1") or "Text Extraction 1"
 
 if addr_col_text not in df_text.columns or text_col not in df_text.columns:
-    st.error("Text CSV must have 'Address' and 'Text Extract 1'")
+    st.error("Text CSV must have 'Address' and 'Text Extraction 1'")
     st.stop()
 
 # --- Merge + parse (cached) ---
