@@ -21,16 +21,6 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 EMBED_MODEL = "text-embedding-3-small"
 GEN_MODEL = "gpt-4.1-mini"
 
-# Language configuration
-SUPPORTED_LANGUAGES = {
-    "English": "en",
-    "Spanish": "es",
-    "French": "fr",
-    "German": "de",
-    "Portuguese": "pt",
-    "Italian": "it"
-}
-
 # ---- session state init (add once) ----
 if "results_df" not in st.session_state:
     st.session_state.results_df = None
@@ -72,7 +62,7 @@ def _dynamic_max_tokens(word_max: int, provided_max_tokens: int) -> int:
     with_buffer = int(round(approx * 1.35))          # headroom to avoid mid-sentence cuts
     return max(provided_max_tokens, with_buffer)
 
-def generate_blurb(context, brand, page_type, tone, temperature=0.1, max_tokens=120, word_min=60, word_max=80, language="English"):
+def generate_blurb(context, brand, page_type, tone, temperature=0.1, max_tokens=120, word_min=60, word_max=80):
     # Page-specific focus
     guidance = {
         "Casino Bonus": "Highlight bonuses, welcome offers, and special promotions explicitly mentioned.",
@@ -108,12 +98,7 @@ def generate_blurb(context, brand, page_type, tone, temperature=0.1, max_tokens=
     else:
         style_instruction = tone_instructions.get(tone, "Use a clear, neutral tone.")
 
-    # Language instruction
-    language_instruction = ""
-    if language != "English":
-        language_instruction = f"\n\nIMPORTANT: Write the entire blurb in {language}. Translate all content naturally while maintaining the tone and style."
-
-    # Final prompt
+    # Final prompt (unchanged)
     prompt = f"""
 You are generating plain text only. Do NOT use markdown, HTML, LaTeX, or KaTeX.
 Return only a single plain text paragraph.
@@ -125,8 +110,6 @@ using only the provided context below. {guidance}
 
 If the context does not contain sufficient information, respond with exactly:
 INSUFFICIENT DATA
-
-{language_instruction}
 
 Context:
 {context}
@@ -192,15 +175,6 @@ def cache_merge_and_parse(df_embeddings, df_text, addr_col_embed, emb_col, addr_
 
 # --- Sidebar controls ---
 st.sidebar.header("Settings")
-
-# Add language selector at the top of sidebar
-output_language = st.sidebar.selectbox(
-    "Output Language",
-    list(SUPPORTED_LANGUAGES.keys()),
-    index=0,
-    help="Language for the generated blurb"
-)
-
 tone = st.sidebar.selectbox(
     "Blurb Tone",
     ["Brand voice", "Neutral", "Informative", "Conversational", "Persuasive", "SEO-optimized"],
@@ -346,22 +320,22 @@ if st.button("Generate blurb", type="primary"):
             brand=brand,
             page_type=page_type,
             temperature=temperature,
-            max_tokens=500,
+            max_tokens=500,          # your existing call – kept
             tone=tone,
             word_min=word_min,
-            word_max=word_max,
-            language=output_language  # Pass selected language
+            word_max=word_max
         )
         blurb = enforce_word_budget(blurb, word_min, word_max)
 
     wc = len(blurb.split()) if blurb and blurb.upper() != "INSUFFICIENT DATA" else 0
     st.subheader("Generated Blurb")
+    #st.caption(f"DEBUG OUTPUT LENGTH: {wc} words / {len(blurb) if blurb else 0} characters")
     st.text_area("Blurb (plain text)", blurb or "", height=160)
-    st.caption(f"Word count: {wc} | Language: {output_language}")
+    st.caption(f"Word count: {wc}")
     
     st.download_button(
         "Download blurb as .txt",
         data=blurb or "",
-        file_name=f"{brand.replace(' ', '_')}_blurb_{SUPPORTED_LANGUAGES[output_language]}.txt",
+        file_name=f"{brand.replace(' ', '_')}_blurb.txt",
         mime="text/plain"
     )
